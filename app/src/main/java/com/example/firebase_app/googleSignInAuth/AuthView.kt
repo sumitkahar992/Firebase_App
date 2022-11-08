@@ -18,9 +18,11 @@ fun AuthView(
     errorText: String?,
     onClick: () -> Unit
 ) {
-    Scaffold{
+    Scaffold {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -37,14 +39,13 @@ fun AuthView(
             }
 
 
-
         }
-}
+    }
 
 }
 
 @Composable
-fun AuthScreen(navController: NavController,authViewModel: AuthViewModel) {
+fun AuthScreen(navController: NavController, authViewModel: AuthViewModel) {
 
     val coroutineScope = rememberCoroutineScope()
     var text by remember { mutableStateOf<String?>(null) }
@@ -52,30 +53,32 @@ fun AuthScreen(navController: NavController,authViewModel: AuthViewModel) {
     val signInRequestCode = 1
 
     val authResultLauncher =
-        rememberLauncherForActivityResult(contract = AuthResultContract() ){
-            task ->
+        rememberLauncherForActivityResult(contract = AuthResultContract()) { task ->
             try {
                 val account = task?.getResult(ApiException::class.java)
-                if (account == null){
+                if (account == null) {
                     text = "Google Sign In Failed !"
-                }
-                else{
+                } else {
                     coroutineScope.launch {
-                        account.displayName?.let { account.email?.let { it1 ->
-                            authViewModel.signIn(
-                                it1, it)
-                        } }
+                        account.displayName?.let {
+                            account.email?.let { it1 ->
+                                authViewModel.signIn(
+                                    it1, it
+                                )
+                            }
+                        }
                     }
                 }
-            }catch (e:ApiException){
+            } catch (e: ApiException) {
                 text = "Google Sign In Failed"
             }
         }
 
-    AuthView(errorText = text, onClick = {text = null
-    authResultLauncher.launch(signInRequestCode)
+    AuthView(errorText = text, onClick = {
+        text = null
+        authResultLauncher.launch(signInRequestCode)
     })
-    user?.let{
+    user?.let {
         HomeScreen(user = it)
     }
 }
